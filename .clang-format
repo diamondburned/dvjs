@@ -1,0 +1,21 @@
+---
+IndentWidth: 4
+# UseTab: ForIndentation
+---
+Language: JavaScript
+ColumnLimit: 80
+AlignOperands: true
+AlignTrailingComments: true
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AllowShortLambdasOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+BinPackArguments: false
+BinPackParameters: true
+BreakBeforeBraces: Attach
+CompactNamespaces: false
+---
