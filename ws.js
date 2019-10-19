@@ -90,6 +90,9 @@ export class Gateway {
 				switch (ev.t) { // event Type
 					case "READY":
 					case "RESUMED":
+						// clean up the old beatLoop
+						if (this.beatLoop) clearInterval(this.beatLoop)
+
 						// start sending heartbeats in the background
 						this.beatLoop = setInterval(
 							() => this.heartbeat(),
