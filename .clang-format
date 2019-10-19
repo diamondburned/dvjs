@@ -5,16 +5,19 @@ AlignOperands: true
 AlignTrailingComments: true
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
-AllowShortLambdasOnASingleLine: None
-AllowShortLoopsOnASingleLine: false
-AllowShortBlocksOnASingleLine: Never
-AllowShortCaseLabelsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: None
-AllowShortIfStatementsOnASingleLine: Never
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: DontAlign
 AlwaysBreakAfterReturnType: None
-BinPackArguments: false
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+BinPackArguments: true
 BinPackParameters: true
 BreakBeforeBraces: Attach
 CompactNamespaces: false
+ExperimentalAutoDetectBinPacking: false
+SpaceBeforeCtorInitializerColon: false
+SpaceBeforeInheritanceColon: false
+SpaceBeforeRangeBasedForLoopColon: false
+SpacesInContainerLiterals: false
+SpaceBeforeParens: true
+AllowShortFunctionsOnASingleLine: Empty
 ---
