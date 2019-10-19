@@ -1,18 +1,27 @@
 const GatewayVersion = 6
 const LargeThreshold = 25
 
-const endpoints = await import("./endpoints.js")
+import * as endpoints from "./endpoints.js"
+import * as ws from "./ws.js"
 
 "use strict"
 
 // TODO: state
 
-class Session {
-    constructor(token) { this.token = token }
+export class Session {
+	constructor(token) { 
+		this.token = token
+		this.callbacks = {}
+	}
 
-    async Gateway() {
-		let r = await request("GET", endpoints.Gateway)
-		return await r.json()
+	SetEventHandler(event, callback) {
+		this.callbacks[event] = callback
+	}
+
+	async Gateway() {
+		let r = await request("GET", endpoints.Gateway),
+			j = await r.json()
+		return j.url
 	}
 
 	async Open() {
@@ -24,12 +33,20 @@ class Session {
 			this.gateway = await this.Gateway();
 			this.gateway += `?v=${endpoints.APIVersion}&encoding=json`
 		}
+
+		// Start the websocket
+		this.ws = new ws.Gateway(this.gateway, this.token, this.callbacks)
 	}
 }
 
 // TODO: rate limit bucket
-function request(method, url) {
-	return fetch(url, {
-		method : method,
+// opts: { headers: {} }
+function request(method, url, opts) {
+	if (!opts) return fetch(url, {
+		method: method,
 	})
+
+	return fetch(url, Object.assign(opts, {
+		method: method,
+	}))
 }

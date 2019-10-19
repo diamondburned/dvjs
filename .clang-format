@@ -1,13 +1,10 @@
 ---
 IndentWidth: 4
-# UseTab: ForIndentation
----
-Language: JavaScript
 ColumnLimit: 80
 AlignOperands: true
 AlignTrailingComments: true
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
 AllowShortLambdasOnASingleLine: None
 AllowShortLoopsOnASingleLine: false
 AllowShortBlocksOnASingleLine: Never
