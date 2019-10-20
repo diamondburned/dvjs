@@ -1,0 +1,22 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": null
+    },
+	"env": {
+		"browser": true,
+		"node": false
+	},
+    "rules": {
+        "semi": "off",
+		"indent": ["error", "tab", {
+			"SwitchCase": 0
+		}],
+		"comma-dangle": ["error", "always-multiline"],
+		"quotes": ["error", "double"],
+		"array-bracket-spacing": ["error", "never", {
+			"singleValue": true
+		}]
+    }
+}

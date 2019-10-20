@@ -11,7 +11,7 @@ import * as ws        from "./ws.js"
 export class Session {
     constructor(token) {
         this.token     = token;
-        this.callbacks = {}
+        this.callbacks = {};
     }
 
     SetEventHandler(event, callback) {
@@ -38,7 +38,7 @@ export class Session {
         this.ws = new ws.Gateway(this.gateway, this.token, this.callbacks)
     }
 
-    // channelID and limit are needed
+    // channelID and limit are needed, returns a list of messages
     async ChannelMessages(channelID, limit, beforeID, afterID, aroundID) {
         let r = await getWithForm(endpoints.ChannelMessages(channelID), {
             "limit": limit,
@@ -49,6 +49,21 @@ export class Session {
 
         let msgs = await r.json()
         return msgs
+    }
+
+    // returns the sent message
+    async ChannelMessageSend(channelID, content, embed) {
+        let data = {
+            "content": content,
+        }
+
+        if (embed) {
+            data["embed"] = embed
+        }
+
+        let r = await postWithBody(endpoints.ChannelMessages(channelID), data)
+        let m = await r.json()
+        return m
     }
 }
 
@@ -64,6 +79,16 @@ function request(method, url, opts) {
     return fetch(url, Object.assign(opts, {
         method: method,
     }))
+}
+
+// TODO: rate limit bucket
+function postWithBody(url, body, opts) {
+    return request("POST", url, {
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    })
 }
 
 // TODO: rate limit bucket
