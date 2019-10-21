@@ -1,17 +1,15 @@
-const GatewayVersion = 6
-const LargeThreshold = 25
-
 import * as endpoints from "./endpoints.js"
-import * as ws        from "./ws.js"
-
-"use strict"
+import * as ws from "./ws.js"
+import * as limiter from "./limiter.js"
+;("use strict")
 
 // TODO: state
 
 export class Session {
     constructor(token) {
-        this.token     = token;
-        this.callbacks = {};
+        this.token = token
+        this.callbacks = {}
+        this.fetcher = new limiter.Fetcher()
     }
 
     SetEventHandler(event, callback) {
@@ -19,18 +17,18 @@ export class Session {
     }
 
     async Gateway() {
-        let r = await request("GET", endpoints.Gateway)
+        let r = await this.fetcher.Request("GET", endpoints.Gateway)
         let j = await r.json()
         return j.url
     }
 
     async Open() {
         if (this.ws) {
-            throw ("WS already open")
+            throw "WS already open"
         }
 
         if (!this.gateway) {
-            this.gateway = await this.Gateway();
+            this.gateway = await this.Gateway()
             this.gateway += `?v=${endpoints.APIVersion}&encoding=json`
         }
 
@@ -40,12 +38,15 @@ export class Session {
 
     // channelID and limit are needed, returns a list of messages
     async ChannelMessages(channelID, limit, beforeID, afterID, aroundID) {
-        let r = await getWithForm(endpoints.ChannelMessages(channelID), {
-            "limit": limit,
-            "after": afterID,
-            "before": beforeID,
-            "around": aroundID,
-        })
+        let r = await this.fetcher.GETWithForm(
+            endpoints.ChannelMessages(channelID),
+            {
+                limit: limit,
+                after: afterID,
+                before: beforeID,
+                around: aroundID,
+            },
+        )
 
         let msgs = await r.json()
         return msgs
@@ -54,53 +55,18 @@ export class Session {
     // returns the sent message
     async ChannelMessageSend(channelID, content, embed) {
         let data = {
-            "content": content,
+            content: content,
         }
 
         if (embed) {
             data["embed"] = embed
         }
 
-        let r = await postWithBody(endpoints.ChannelMessages(channelID), data)
+        let r = await this.fetcher.POSTWithBody(
+            endpoints.ChannelMessages(channelID),
+            data,
+        )
         let m = await r.json()
         return m
     }
-}
-
-// TODO: rate limit bucket
-// opts: { headers: {} }
-function request(method, url, opts) {
-    if (!opts) {
-        return fetch(url, {
-            method: method,
-        })
-    }
-
-    return fetch(url, Object.assign(opts, {
-        method: method,
-    }))
-}
-
-// TODO: rate limit bucket
-function postWithBody(url, body, opts) {
-    return request("POST", url, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-    })
-}
-
-// TODO: rate limit bucket
-function getWithForm(url, form, opts) {
-    let fields = [];
-    for (const [k, v] of Object.entries(v)) {
-        if (!v) {
-            continue
-        }
-
-        fields.push(encodeURIComponent(k) + "=" + encodeURIComponent(v))
-    }
-
-    return request("GET", url + "?" + fields.join("&"), opts)
 }

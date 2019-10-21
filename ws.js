@@ -1,33 +1,33 @@
 const WSIdentity = {
-    "$os": "Mangaka Linux",
-    "$browser": "Mozilla Chromium v69.0.4",
-    "$device": "Emacs-Teledildonics v2.3",
-    "$referer": "",
-    "$referrign_domain": "",
+    $os: "Mangaka Linux",
+    $browser: "Mozilla Chromium v69.0.4",
+    $device: "Emacs-Teledildonics v2.3",
+    $referer: "",
+    $referrign_domain: "",
 }
 
 // new Gateway("wss://", token, callbackObject)
 //     Close()
 export class Gateway {
     constructor(gateway, token, evCallback) {
-        this.gateway   = gateway;
-        this.token     = token;
-        this.callbacks = evCallback;
+        this.gateway = gateway
+        this.token = token
+        this.callbacks = evCallback
 
-        this.ws = new WebSocket(gateway);
+        this.ws = new WebSocket(gateway)
         this.ws.addEventListener("message", function(wsEvent) {
-            let ev = JSON.parse(wsEvent.data);
+            let ev = JSON.parse(wsEvent.data)
             // store the sequence
-            this.sequence = ev.s;
+            this.sequence = ev.s
 
-            ev = this.onPacket(ev);
+            ev = this.onPacket(ev)
             if (ev) {
                 this.onEvent(ev.t, ev.d)
             }
-        });
+        })
 
         // TODO: ws error => reconnect
-        this.ready = false;
+        this.ready = false
 
         // TODO: lastHeartBeatAck
 
@@ -38,8 +38,8 @@ export class Gateway {
     }
 
     Close() {
-        clearInterval(this.beatLoop); // clean up
-        this.ws.close(1000); // normal closure
+        clearInterval(this.beatLoop) // clean up
+        this.ws.close(1000) // normal closure
     }
 
     json(obj) {
@@ -62,60 +62,59 @@ export class Gateway {
     // data as well as a few more fields
     onPacket(ev) {
         switch (ev.op) {
-        case 1: // heartbeat
-            op(1, this.sequence)
-            break;
+            case 1: // heartbeat
+                this.op(1, this.sequence)
+                break
 
-        case 7: // reconnect
-            this.reconnect()
-            break;
+            case 7: // reconnect
+                this.reconnect()
+                break
 
-        case 9: // invalid session
-            this.identify()
-            break;
+            case 9: // invalid session
+                this.identify()
+                break
 
-        case 10: // hello
-            // Get the heartbeat interval
-            this.beatInterval = ev.d.heartbeat_interval;
+            case 10: // hello
+                // Get the heartbeat interval
+                this.beatInterval = ev.d.heartbeat_interval
 
-            // TODO: Add Op 6 resume, right now only Op
-            // 2 send IDENTIFY (2), expect READY
-            this.identify()
-            break;
+                // TODO: Add Op 6 resume, right now only Op
+                // 2 send IDENTIFY (2), expect READY
+                this.identify()
+                break
 
-        case 11: // heartbeat ACK TODO
-            break;
+            case 11: // heartbeat ACK TODO
+                break
 
-        case 0: // DISPATCH, just normal
-            if (ev.t == "READY" || ev.t == "RESUMED") {
-                if (this.beatLoop) {
-                    clearInterval(this.beatLoop)
+            case 0: // DISPATCH, just normal
+                if (ev.t == "READY" || ev.t == "RESUMED") {
+                    if (this.beatLoop) {
+                        clearInterval(this.beatLoop)
+                    }
+
+                    // start sending heartbeats in the background
+                    this.beatLoop = setInterval(
+                        () => this.heartbeat(),
+                        this.beatInterval,
+                    )
+
+                    this.ready = true
                 }
 
-                // start sending heartbeats in the background
-                this.beatLoop = setInterval(
-                    function() {
-                        this.heartbeat()
-                    },
-                    this.beatInterval,
-                );
+                return ev
 
-                this.ready = true;
-            }
-
-            return ev;
-
-        default: // dunno, just log and return
-            console.log("UNKNOWN EVENT", ev)
-            break;
+            default:
+                // dunno, just log and return
+                console.log("UNKNOWN EVENT", ev)
+                break
         }
     }
 
     // utils
     op(code, data) {
         this.json({
-            "op": code,
-            "d": data,
+            op: code,
+            d: data,
         })
     }
 
@@ -133,12 +132,12 @@ export class Gateway {
     // Replies
     identify() {
         this.json({
-            "op": 2,
-            "d": {
-                "token": this.token,
-                "properties": WSIdentity,
-                "large_threshold": 250, // TODO: const
-                "compress": false,
+            op: 2,
+            d: {
+                token: this.token,
+                properties: WSIdentity,
+                large_threshold: 250, // TODO: const
+                compress: false,
             },
         })
     }
