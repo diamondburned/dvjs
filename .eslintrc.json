@@ -19,8 +19,6 @@
 		}],
 		"comma-dangle": ["error", "always-multiline"],
 		"quotes": ["error", "double"],
-		"array-bracket-spacing": ["error", "never", {
-			"singleValue": true
-		}]
+		"array-bracket-spacing": ["error", "never"]
 	}
 }

@@ -55,6 +55,13 @@ export class Fetcher {
         )
     }
 
+    async RequestJSON(method, url, opts) {
+        let r = await this.Request(method, url, opts),
+            j = await r.json()
+
+        return j
+    }
+
     async POSTWithBody(url, bodyObject) {
         return this.Request("POST", url, {
             headers: {

@@ -1,19 +1,27 @@
 import * as endpoints from "./endpoints.js"
 import * as ws from "./ws.js"
 import * as limiter from "./limiter.js"
+import * as state from "./state.js"
 ;("use strict")
 
-// TODO: state
+// Shortcut to state
+export let State = state.State
 
 export class Session {
     constructor(token) {
         this.token = token
         this.callbacks = {}
+        this.stateCallbacks = {}
         this.fetcher = new limiter.Fetcher()
     }
 
     SetEventHandler(event, callback) {
         this.callbacks[event] = callback
+    }
+
+    // Reserved for State, do NOT touch.
+    _setStateEventHandler(event, callback) {
+        this.stateCallbacks[event] = callback
     }
 
     async Gateway() {
@@ -68,5 +76,24 @@ export class Session {
         )
         let m = await r.json()
         return m
+    }
+
+    // guildID: string
+    async Guild(guildID) {
+        return await this.fetcher.RequestJSON("GET", endpoints.Guild(guildID))
+    }
+
+    async Channel(chID) {
+        return await this.fetcher.RequestJSON("GET", endpoints.Channel(chID))
+    }
+
+    // recipientID: string
+    async UserChannel(recipientID) {
+        return await this.fetcher.POSTWithBody(
+            endpoints.UserChannels(recipientID),
+            {
+                recipient_id: recipientID,
+            },
+        )
     }
 }

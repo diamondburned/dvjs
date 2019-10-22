@@ -9,10 +9,16 @@ const WSIdentity = {
 // new Gateway("wss://", token, callbackObject)
 //     Close()
 export class Gateway {
-    constructor(gateway, token, evCallback) {
+    // gateway: the Discord endpoitn
+    // token:   the token
+    // evCallbacks:    map of event names to their callbacks
+    // evCallback:     callback on any event
+    // stateCallbacks: evCallbacks reserved for state
+    constructor(gateway, token, evCallbacks, evCallback, stateCallbacks) {
         this.gateway = gateway
         this.token = token
-        this.callbacks = evCallback
+        this.callbacks = evCallbacks
+        this.stateCallbacks = stateCallbacks // callback reserved for state
 
         this.ws = new WebSocket(gateway)
         this.ws.addEventListener("message", function(wsEvent) {
@@ -53,7 +59,11 @@ export class Gateway {
             this.callbacks[event](data)
         } else {
             // Debug only
-            console.log("Unknown event:", event)
+            // console.log("Unknown event:", event)
+        }
+
+        if (this.stateCallbacks[event]) {
+            this.stateCallbacks[event](data)
         }
     }
 

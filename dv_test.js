@@ -1,6 +1,6 @@
-import * as dvjs from "./dv.js"
+import * as dvjs from "./dvjs.js"
 
-var session = new dvjs.Session(prompt("Enter your Discord token"))
+var session = new dvjs.State(prompt("Enter your Discord token"))
 
 ;("use strict")
 
@@ -26,12 +26,19 @@ const tests = {
         // Reconnnect
         await session.ws.reconnect()
     },
-    "Get Channels": async () => {},
+    User: async () => {
+        if (!dvjs.User) {
+            throw "No user found"
+        }
+
+        console.log("User:", dvjs.User)
+    },
 }
 
 async function RunTest() {
     for (const [name, fn] of tests) {
         console.log("Running " + name)
+
         await fn(session).catch(function(err) {
             console.error(`Test ${name} failed, reason: ${err}`)
         })
