@@ -1,4 +1,5 @@
 import * as dvjs from "./dv.js"
+import * as events from "./events.js"
 
 // State takes care of incoming websocket events and update them in the internal
 // state. It takes care of:
@@ -24,7 +25,7 @@ export class State extends dvjs.Session {
         this.Guilds = {}
         this.PrivateChannels = {}
 
-        super._setStateEventHandler("READY", ready => {
+        super._setStateEventHandler(events.Ready, ready => {
             // Fields manually set explicitly for clarity
             this.User = ready.user
             this.SessionID = ready.session_id
@@ -42,13 +43,13 @@ export class State extends dvjs.Session {
 
         // User
 
-        super._setStateEventHandler("USER_UPDATE", u => {
+        super._setStateEventHandler(events.UserUpdate, u => {
             this.User = Object.assign(this.User, u)
         })
 
         // Message
 
-        super._setStateEventHandler("MESSAGE_CREATE", m => {
+        super._setStateEventHandler(events.MessageCreate, m => {
             let ch = this.GetChannel(m.channel_id)
             if (!ch) {
                 // Can't find channel
@@ -60,7 +61,7 @@ export class State extends dvjs.Session {
 
         // Channels
 
-        super._setStateEventHandler("CHANNEL_CREATE", ch => {
+        super._setStateEventHandler(events.ChannelCreate, ch => {
             if (!ch.guild_id) {
                 // Channel is a private channel
                 this.PrivateChannels[ch.id] = ch
@@ -92,7 +93,7 @@ export class State extends dvjs.Session {
             guild.channels[i] = Object.assign(guild.channels[i], ch)
         })
 
-        super._setStateEventHandler("CHANNEL_UPDATE", async ch => {
+        super._setStateEventHandler(events.ChannelUpdate, async ch => {
             if (!ch.guild_id) {
                 let old = this.PrivateChannels[ch.id]
                 if (old) {
@@ -120,7 +121,7 @@ export class State extends dvjs.Session {
             guild.channels[i] = Object.assign(guild.channels[i], ch)
         })
 
-        super._setStateEventHandler("CHANNEL_DELETE", ch => {
+        super._setStateEventHandler(events.ChannelDelete, ch => {
             if (ch.guild_id) {
                 // Delete the private channel
                 delete this.PrivateChannels[ch.id]
@@ -145,11 +146,11 @@ export class State extends dvjs.Session {
 
         // Guilds
 
-        super._setStateEventHandler("GUILD_CREATE", guild => {
+        super._setStateEventHandler(events.GuildCreate, guild => {
             this.Guilds[guild.id] = guild
         })
 
-        super._setStateEventHandler("GUILD_UPDATE", async guild => {
+        super._setStateEventHandler(events.GuildUpdate, async guild => {
             let old = this.Guilds[guild.id]
             if (old) {
                 this.Guilds[guild.id] = Object.assign(old, guild)
@@ -158,13 +159,13 @@ export class State extends dvjs.Session {
             }
         })
 
-        super._setStateEventHandler("GUILD_DELETE", guild => {
+        super._setStateEventHandler(events.GuildDelete, guild => {
             delete this.Guilds[guild.id]
         })
 
         // Guild Members
 
-        super._setStateEventHandler("")
+        // super._setStateEventHandler("")
     }
 
     // This method searches the state for the channel. If it can't find the
