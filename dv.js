@@ -41,7 +41,13 @@ export class Session {
         }
 
         // Start the websocket
-        this.ws = new ws.Gateway(this.gateway, this.token, this.callbacks)
+        this.ws = new ws.Gateway(
+            this.gateway,
+            this.token,
+            this.callbacks,
+            null,
+            this.stateCallbacks,
+        )
     }
 
     // channelID and limit are needed, returns a list of messages
